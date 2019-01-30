@@ -1,0 +1,1 @@
+We plan to make a tower defense browser game using Nodejs as the server and phaserjs for the game code.
