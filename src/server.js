@@ -8,7 +8,8 @@ app.get('/', function(request, response){
 });
 
 app.get(/.png/, function(request, response){
-    var path = __dirname + request.url;
+    var path = __dirname.slice(0, -4);
+    path = path + request.url;
     response.sendfile(path);
 });
 

@@ -2,8 +2,8 @@
 <html lang="en"> 
 <head> 
     <meta charset="UTF-8" />
-    <title>Tower Defence</title>
-    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <title>Tower Defense</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.12.0/dist/phaser.js"></script>
     <style type="text/css">
         body {
             margin: 0;
@@ -25,23 +25,81 @@
         }
     };
 
+    var enemies;
+    var path;
+    var graphics;
+    
     var game = new Phaser.Game(config);
 
     function preload ()
     {
     this.load.image('background', 'assets/background.png');
-        this.load.image('path', 'assets/path.png');
-    }
+    this.load.image('path', 'assets/path.png');
+    this.load.image('enemy', 'assets/tempEnemy.png');
+    }//preload
 
     function create ()
     {
     this.add.image(400, 400, 'background');
     this.add.image(400, 400, 'path');
+    graphics = this.add.graphics();
+    
+    path = new Phaser.Curves.Path(100, -50);
+    path.lineTo(100, 50);
+    
+     var max = 8;
+    var h = 500 / max;
+
+    for (var i = 0; i < max; i++)
+    {
+        if (i % 2 === 0)
+        {
+            path.lineTo(700, 50 + h * (i + 1));
+        }
+        else
+        {
+            path.lineTo(100, 50 + h * (i + 1));
+        }
     }
+
+    enemies = this.add.group();
+
+    for (var i = 0; i < 10; i++)
+    {
+        var ball = enemies.create(0, -50, 'enemy');
+
+        ball.setData('vector', new Phaser.Math.Vector2());
+
+        this.tweens.add({
+            targets: ball,
+            z: 1,
+            ease: 'Linear',
+            duration: 12000,
+            delay: i * 100
+        });
+    
+    }
+    }//create
 
     function update ()
     {
+     graphics.clear();
+
+     var balls = enemies.getChildren();
+
+    for (var i = 0; i < balls.length; i++)
+    {
+        var t = balls[i].z;
+        var vec = balls[i].getData('vector');
+
+        //  The vector is updated in-place
+        path.getPoint(t, vec);
+        
+        balls[i].setPosition(vec.x, vec.y);
+
+        balls[i].setDepth(balls[i].y);
     }
+    }//update
 
 </script>
 
