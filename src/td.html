@@ -34,14 +34,12 @@
     function preload ()
     {
     this.load.image('background', 'assets/background.png');
-    this.load.image('path', 'assets/path.png');
     this.load.image('enemy', 'assets/tempEnemy.png');
     }//preload
 
     function create ()
     {
     this.add.image(400, 400, 'background');
-    this.add.image(400, 400, 'path');
     graphics = this.add.graphics();
     
     path = new Phaser.Curves.Path(100, -50);
@@ -84,6 +82,9 @@
     function update ()
     {
      graphics.clear();
+     graphics.lineStyle(15, 0x8b4513, 1);
+
+    path.draw(graphics);
 
      var balls = enemies.getChildren();
 
@@ -92,7 +93,6 @@
         var t = balls[i].z;
         var vec = balls[i].getData('vector');
 
-        //  The vector is updated in-place
         path.getPoint(t, vec);
         
         balls[i].setPosition(vec.x, vec.y);
