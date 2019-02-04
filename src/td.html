@@ -42,23 +42,27 @@
     this.add.image(400, 400, 'background');
     graphics = this.add.graphics();
     
-    path = new Phaser.Curves.Path(100, -50);
-    path.lineTo(100, 50);
+    var xval = Math.floor(Math.random() * 2)*800;
+    var yval = Math.floor(Math.random() *801);
+    
+    path = new Phaser.Curves.Path(xval, yval);
     
      var max = 8;
-    var h = 500 / max;
 
     for (var i = 0; i < max; i++)
     {
-        if (i % 2 === 0)
-        {
-            path.lineTo(700, 50 + h * (i + 1));
-        }
-        else
-        {
-            path.lineTo(100, 50 + h * (i + 1));
-        }
+    if(Math.floor(Math.random()*2) == 0){
+    xval = Math.floor(Math.random() *700)+50;
     }
+     else{
+       yval = Math.floor(Math.random() *700)+50;
+       }
+       path.lineTo(xval, yval);
+    }
+    
+    xval = Math.floor(Math.random() * 801);
+    yval = Math.floor(Math.random() * 2)*800;
+    path.lineTo(xval, yval);
 
     enemies = this.add.group();
 
