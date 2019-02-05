@@ -47,23 +47,30 @@
     
     path = new Phaser.Curves.Path(xval, yval);
     
-     var max = 8;
-
+    var line = {x1: xval, y1: yval, x2:0 , y2:0 };
+   
+    xval = Math.floor(Math.random() *700)+50;
+    line.x2 = xval;
+    line.y2 = yval;
+    path.lineTo(xval, yval);
+    
+    var drawnLines = [line];
+    
+    var max = 2;
     for (var i = 0; i < max; i++)
     {
-    if(Math.floor(Math.random()*2) == 0){
-    xval = Math.floor(Math.random() *700)+50;
-    }
-     else{
-       yval = Math.floor(Math.random() *700)+50;
-       }
-       path.lineTo(xval, yval);
+    line.x1 = drawnLines[drawnLines.length-1].x2;
+    line.y1 = drawnLines[drawnLines.length-1].y2;
+    line.x2 = 0;
+    line.y2 = 0;
+    drawnLines.push(line);
+    drawValidLine(drawnLines);
     }
     
-    xval = Math.floor(Math.random() * 801);
+   /* xval = Math.floor(Math.random() * 801);
     yval = Math.floor(Math.random() * 2)*800;
-    path.lineTo(xval, yval);
-
+    path.lineTo(xval, yval);  //random end point for path
+*/ 
     enemies = this.add.group();
 
     for (var i = 0; i < 10; i++)
@@ -82,6 +89,10 @@
     
     }
     }//create
+    
+    function drawValidLine(drawnLines){
+    
+    }//draw valid line
 
     function update ()
     {
