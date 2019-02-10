@@ -53,7 +53,7 @@
     strtLine.x2 = xval;
     strtLine.y2 = yval;
     path.lineTo(xval, yval);
-    
+    //draw starting line
     var drawnLines = [strtLine];
     
     var max = 5;
@@ -68,11 +68,46 @@
     drawnLines.push(line);
     drawValidLine(drawnLines);
     }
-    
-   /* xval = Math.floor(Math.random() * 801);
-    yval = Math.floor(Math.random() * 2)*800;
-    path.lineTo(xval, yval);  //random end point for path
-*/ 
+    //set end point
+    var endLine = {x1: drawnLines[max].x2, y1: drawnLines[max].y2, x2:0, y2:0};
+    if(endLine.x1 < 400 && endLine.y1 <400){ //quadrant one
+      if(endLine.x1 < endLine.y1){
+      endLine.y2 = endLine.y1;
+      }
+      else{
+      endLine.x2 = endLine.x1;
+      }
+    }
+    else if (endLine.x1 >= 400 && endLine.y1 <400){ //quadrant two
+      if(800-endLine.x1 < endLine.y1){
+      endLine.y2 = endLine.y1;
+      endLine.x2 = 800;
+      }
+      else{
+      endLine.x2 = endLine.x1;
+      }
+    }//q2
+    else if (endLine.x1 < 400 && endLine.y1 >= 400){ //quadrant three
+    if(endLine.x1 < 800-endLine.y1){
+    endLine.y2 = endLine.y1;
+    }
+    else{
+    endLine.x2 = endLine.x1;
+    endLine.y2 =800;
+    }
+    }//q3
+    else{ //quadrant four
+    if(endLine.x1 > endLine.y1){
+    endLine.y2 = endLine.y1;
+    endLine.x2 =800;
+    }
+    else{
+    endLine.x2 = endLine.x1;
+    endLine.y2 =800;
+    }
+    }//q4
+    drawnLines.push(endLine);
+    path.lineTo(endLine.x2, endLine.y2);
     enemies = this.add.group();
 
     for (var i = 0; i < 10; i++)
@@ -114,8 +149,8 @@
     j--;
     }//while
     if(valid == false){
-    drawnLines[drawnLines.length-1].x2 = Math.floor(Math.random() *700);
-    drawnLines[drawnLines.length-1].y2 = Math.floor(Math.random() *700);
+    drawnLines[lineToDraw].x2 = Math.floor(Math.random() *700);
+    drawnLines[lineToDraw].y2 = Math.floor(Math.random() *700);
     drawValidLine(drawnLines);
     }//if
     else path.lineTo(drawnLines[lineToDraw].x2, drawnLines[lineToDraw].y2);
