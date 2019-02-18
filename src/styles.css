@@ -10,7 +10,7 @@ body{
 #gamecontainer{
     width:800px;
     height: 600px;
-    background: url("images/towerdefense.jpg");
+    background: url("towerdefense.jpg");
 }
 
 .gamelayer{
