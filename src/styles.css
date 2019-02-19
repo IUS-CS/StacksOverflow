@@ -9,8 +9,8 @@ body{
 
 #gamecontainer{
     width:800px;
-    height: 600px;
-    background: url("images/towerdefense.jpg");
+    height: 800px;
+    background: url("towerdefense.jpg");
 }
 
 .gamelayer{
@@ -21,12 +21,12 @@ body{
 }
 
 #gamestartscreen{
-    padding-top: 200px;
+    padding-top: 0px;
     text-align: center;
 }
 
 #gamestartscreen img{
-    margin: 10px;
+    margin: 0px;
     cursor: pointer;
 }
 
