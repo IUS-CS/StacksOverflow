@@ -1,7 +1,7 @@
 
     var config = {
         type: Phaser.AUTO,
-        width: 800,
+        width: 1600,
         height: 800,
         scene: {
             preload: preload,
@@ -13,6 +13,9 @@
     var enemies;
     var path;
     var graphics;
+    var score = 100;
+    var scoreText;
+    var gameOver = false;
     
     var game = new Phaser.Game(config);
 
@@ -20,68 +23,135 @@
     {
     this.load.image('background', 'background.png');
     this.load.image('enemy', 'tempEnemy.png');
+    this.load.image('turret', 'turret.png');
     }//preload
 
-    function create ()
-    {
-    this.add.image(400, 400, 'background');
-    graphics = this.add.graphics();
+var Turret = new Phaser.Class({
+ 
+        Extends: Phaser.GameObjects.Image,
+ 
+        initialize:
+ 
+        function Turret (scene)
+        {
+            Phaser.GameObjects.Image.call(this, scene, 0, 0, 'turret');
+            this.nextTic = 0;
+        },
+        place: function(i, j){
+            this.y = i * 64 + 64/2;
+            this.x = j * 64 + 64/2;
+        },
+        update: function (time, delta)
+        {
+            // time to shoot
+            if(time > this.nextTic) {                
+                this.nextTic = time + 1000;
+            }
+        }
+}); //turret
     
-    var xval = Math.floor(Math.random() * 2)*800;
-    var yval = Math.floor(Math.random() *701);
-    
-    path = new Phaser.Curves.Path(xval, yval);
-    
-    var strtLine = {x1: xval, y1: yval, x2:0 , y2:0 };
-   
-    xval = Math.floor(Math.random() *700)+50;
-    strtLine.x2 = xval;
-    strtLine.y2 = yval;
-    path.lineTo(xval, yval);
-    //draw starting line
-    var drawnLines = [strtLine];
-    
-    var max = 5;
-    
-    for (var i = 1; i <= max; i++)
-    {
-    var line = {x1:0, y1:0, x2:0, y2:0};
-    line.x1 = drawnLines[i-1].x2;
-    line.y1 = drawnLines[i-1].y2;
-    drawnLines.push(line);
-    
-    do{
-    drawnLines[i].x2 = Math.floor(Math.random() *700);
-    drawnLines[i].y2 = Math.floor(Math.random() *700); 
-    }
-    while(checkValidLine(drawnLines) == false);
-    path.lineTo(drawnLines[i].x2, drawnLines[i].y2);
-    }//for
-    
-    //set end point
-    var endLine = {x1: drawnLines[max].x2, y1: drawnLines[max].y2, x2:0, y2:0};
-    selectEndPoint(endLine);
-    
-    drawnLines.push(endLine);
-    path.lineTo(endLine.x2, endLine.y2);
-    enemies = this.add.group();
+    function create (){
+        this.add.image(400, 400, 'background');
+        graphics = this.add.graphics();
+        scoreText = this.add.text(916, 16, 'score: 100', { fontSize: '32px', fill: '#FFF' });
+        
+        var xval = Math.floor(Math.random() * 2)*800;
+        var yval = Math.floor(Math.random() *701);
+        
+        path = new Phaser.Curves.Path(xval, yval);
+        
+        var strtLine = {x1: xval, y1: yval, x2:0 , y2:0 };
+       
+        xval = Math.floor(Math.random() *700)+50;
+        strtLine.x2 = xval;
+        strtLine.y2 = yval;
+        path.lineTo(xval, yval);
+        //draw starting line
+        var drawnLines = [strtLine];
+        
+        var max = 5;
+        
+        for (var i = 1; i <= max; i++)
+        {
+        var line = {x1:0, y1:0, x2:0, y2:0};
+        line.x1 = drawnLines[i-1].x2;
+        line.y1 = drawnLines[i-1].y2;
+        drawnLines.push(line);
+        
+        do{
+        drawnLines[i].x2 = Math.floor(Math.random() *700);
+        drawnLines[i].y2 = Math.floor(Math.random() *700); 
+        }
+        while(checkValidLine(drawnLines) == false);
+        path.lineTo(drawnLines[i].x2, drawnLines[i].y2);
+        }//for
+        
+        //set end point
+        var endLine = {x1: drawnLines[max].x2, y1: drawnLines[max].y2, x2:0, y2:0};
+        selectEndPoint(endLine);
+        
+        drawnLines.push(endLine);
+        path.lineTo(endLine.x2, endLine.y2);
+        enemies = this.add.group();
+        turrets = this.add.group({ classType: Turret, runChildUpdate: true });
 
-    for (var i = 0; i < 10; i++)
-    {
-        var ball = enemies.create(0, -50, 'enemy');
+        for (var i = 0; i < 10; i++)
+        {
+            var star = enemies.create(0, -50, 'enemy');
 
-        ball.setData('vector', new Phaser.Math.Vector2());
+            star.setData('vector', new Phaser.Math.Vector2());
 
-        this.tweens.add({
-            targets: ball,
-            z: 1,
-            ease: 'Linear',
-            duration: 12000,
-            delay: i * 100
-        });
-    
-    }
+            this.tweens.add({
+                targets: star,
+                z: 1,
+                ease: 'Linear',
+                duration: 12000,
+                delay: i * 1000
+            });
+        
+        }
+        this.input.on('pointerdown', placeTurret);
     }//create
+    
+    function update (){
+        if (gameOver){
+            return;
+        }
+         graphics.clear();
+         graphics.lineStyle(15, 0x8b4513, 1);
+
+        path.draw(graphics);
+
+         var stars = enemies.getChildren();
+
+        for (var i = 0; i < stars.length; i++)
+        {
+            var t = stars[i].z;
+            var vec = stars[i].getData('vector');
+
+            path.getPoint(t, vec);
+            
+            stars[i].setPosition(vec.x, vec.y);
+
+            stars[i].setDepth(stars[i].y);
+        }
+    }//update
+
+function placeTurret(pointer) {
+    if(score >= 50){
+    var i = Math.floor(pointer.y/64);
+    var j = Math.floor(pointer.x/64);
+        var turret = turrets.get();
+        if (turret)
+        {
+            turret.setActive(true);
+            turret.setVisible(true);
+            turret.place(i, j);
+        }   
+    score = score - 50;
+    scoreText.setText('Score: ' + score);
+}
+}//place turret
     
     function checkValidLine(drawnLines){
         var j = drawnLines.length-2;
@@ -147,24 +217,3 @@
         }//q4
     }//draw the ending point
 
-    function update ()
-    {
-     graphics.clear();
-     graphics.lineStyle(15, 0x8b4513, 1);
-
-    path.draw(graphics);
-
-     var balls = enemies.getChildren();
-
-    for (var i = 0; i < balls.length; i++)
-    {
-        var t = balls[i].z;
-        var vec = balls[i].getData('vector');
-
-        path.getPoint(t, vec);
-        
-        balls[i].setPosition(vec.x, vec.y);
-
-        balls[i].setDepth(balls[i].y);
-    }
-    }//update
