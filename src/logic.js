@@ -72,11 +72,10 @@ var Enemy = new Phaser.Class({
         {
             Phaser.GameObjects.Image.call(this, scene, 0, 0, 'enemy');
             this.hp = 100;
-            
+            this.t = 0;
         },
         damaged: function(){
             this.hp = this.hp - 50;
-            console.log(this.hp);
             if (this.hp <= 0){
                 this.setActive(false);
                 this.setVisible(false);
@@ -86,7 +85,25 @@ var Enemy = new Phaser.Class({
         },
         update: function (time, delta)
         {
-            
+           var t = this.z;
+                var vec = this.getData('vector');
+                if (t >= 1){
+                    this.setActive(false);
+                    this.setVisible(false);
+                    score -= 10;
+                    if(score < 0) gameOver = true;
+                    else{
+                    scoreText.setText('Score: ' + score);
+                    }
+                    
+                }//if t is 1
+                else{
+                path.getPoint(t, vec);
+                
+                this.setPosition(vec.x, vec.y);
+
+                this.setDepth(this.y);
+                } 
         }
  
 });//enemy
@@ -140,7 +157,7 @@ var Bullet = new Phaser.Class({
     function create (){
         this.add.image(400, 400, 'background');
         graphics = this.add.graphics();
-        scoreText = this.add.text(916, 16, 'score: 100', { fontSize: '32px', fill: '#FFF' });
+        scoreText = this.add.text(1200, 16, 'Score: 100', { fontSize: '32px', fill: '#FFF' });
         
         var xval = Math.floor(Math.random() * 2)*800;
         var yval = Math.floor(Math.random() *701);
@@ -193,7 +210,7 @@ var Bullet = new Phaser.Class({
                     targets: star,
                     z: 1,
                     ease: 'Linear',
-                    duration: 12000,
+                    duration: 16000,
                     delay: i * 1000
                 });
             }
@@ -208,22 +225,7 @@ var Bullet = new Phaser.Class({
         }
          graphics.clear();
          graphics.lineStyle(15, 0x8b4513, 1);
-
         path.draw(graphics);
-
-         var stars = enemies.getChildren();
-
-        for (var i = 0; i < stars.length; i++)
-        {
-            var t = stars[i].z;
-            var vec = stars[i].getData('vector');
-
-            path.getPoint(t, vec);
-            
-            stars[i].setPosition(vec.x, vec.y);
-
-            stars[i].setDepth(stars[i].y);
-        }
     }//update
 
     function placeTurret(pointer) {
@@ -266,7 +268,6 @@ var Bullet = new Phaser.Class({
             bullet.setActive(false);
             bullet.setVisible(false); 
             enemy.damaged();
-           // enemy.receiveDamage(BULLET_DAMAGE);
         }
     }//damage enemy
     
