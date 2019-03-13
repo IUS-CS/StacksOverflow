@@ -248,7 +248,6 @@ var Bullet = new Phaser.Class({
         var j = Math.floor(pointer.x);
         if(j <= 800){
          var turretCost = (turrets.countActive() * 20)+50;
-        turCostText.setText('Turret Cost: ' + (turretCost+20));   
         if(score >= turretCost){
             var turret = turrets.get();
             if (turret)
@@ -259,6 +258,7 @@ var Bullet = new Phaser.Class({
             }   
         score = score - turretCost;
         scoreText.setText('Score: ' + score);
+        turCostText.setText('Turret Cost: ' + (turretCost+20));  
         }
     }
     }//place turret
