@@ -18,7 +18,10 @@
     var graphics;
     var score = 100;
     var scoreText;
+    var roundText;
+    var turCostText;
     var gameOver = false;
+    var round = 1;
     
     var game = new Phaser.Game(config);
 
@@ -57,7 +60,7 @@ var Turret = new Phaser.Class({
         {
             if(time > this.nextTic) {
                 this.fire();
-                this.nextTic = time + 1000;
+                this.nextTic = time + 800;
             }
         }
 }); //turret
@@ -71,14 +74,13 @@ var Enemy = new Phaser.Class({
         function Enemy (scene)
         {
             Phaser.GameObjects.Image.call(this, scene, 0, 0, 'enemy');
-            this.hp = 100;
+            this.hp = (round*10)+100;
             this.t = 0;
         },
         damaged: function(){
             this.hp = this.hp - 50;
             if (this.hp <= 0){
-                this.setActive(false);
-                this.setVisible(false);
+                this.destroy();
                 score += 10;
                 scoreText.setText('Score: ' + score);
             }
@@ -88,9 +90,8 @@ var Enemy = new Phaser.Class({
            var t = this.z;
                 var vec = this.getData('vector');
                 if (t >= 1){
-                    this.setActive(false);
-                    this.setVisible(false);
-                    score -= 10;
+                    this.destroy();
+                    score -= 20;
                     if(score < 0) gameOver = true;
                     else{
                     scoreText.setText('Score: ' + score);
@@ -122,7 +123,7 @@ var Bullet = new Phaser.Class({
         this.dy = 0;
         this.lifespan = 0;
  
-        this.speed = Phaser.Math.GetSpeed(600, 1);
+        this.speed = Phaser.Math.GetSpeed(1300, 1);
     },
  
     fire: function (x, y, angle)
@@ -157,7 +158,9 @@ var Bullet = new Phaser.Class({
     function create (){
         this.add.image(400, 400, 'background');
         graphics = this.add.graphics();
-        scoreText = this.add.text(1200, 16, 'Score: 100', { fontSize: '32px', fill: '#FFF' });
+        scoreText = this.add.text(1100, 16, 'Score: 100', { fontSize: '32px', fill: '#FFF' });
+        roundText = this.add.text(1100, 66, 'Round: 1', { fontSize: '32px', fill: '#FFF' });
+        turCostText = this.add.text(1100, 116, 'Turret Cost: 50', { fontSize: '32px', fill: '#FFF' });
         
         var xval = Math.floor(Math.random() * 2)*800;
         var yval = Math.floor(Math.random() *701);
@@ -199,39 +202,53 @@ var Bullet = new Phaser.Class({
         bullets = this.physics.add.group({ classType: Bullet, runChildUpdate: true });
         enemies = this.physics.add.group({ classType: Enemy, runChildUpdate: true });
         turrets = this.add.group({ classType: Turret, runChildUpdate: true });
-
-        for (var i = 0; i < 10; i++)
-        {
-            var star = enemies.get();
-
-            star.setData('vector', new Phaser.Math.Vector2());
-            if (star){
-                this.tweens.add({
-                    targets: star,
-                    z: 1,
-                    ease: 'Linear',
-                    duration: 16000,
-                    delay: i * 1000
-                });
-            }
-        }//for
         this.input.on('pointerdown', placeTurret);
         this.physics.add.overlap(enemies, bullets, damageEnemy);
+        
+        graphics.lineStyle(15, 0x8b4513, 1);
+        path.draw(graphics);
+        
+        spawnEnemies(this);
     }//create
     
     function update (){
         if (gameOver){
+            this.add.text(200, 200, 'Game Over', { fontSize: '64px', fill: '#FFF' });
+            enemies.destroy(true);
             return;
         }
-         graphics.clear();
-         graphics.lineStyle(15, 0x8b4513, 1);
-        path.draw(graphics);
+        if (enemies.countActive() === 0){
+            round++;
+            roundText.setText('Round: ' + round);
+            spawnEnemies(this);
+        }
+        
     }//update
+    
+    function spawnEnemies(sceneObj){
+        var enNum = Math.floor(Math.random()*(round))+5;
+        for (var i = 0; i < enNum; i++)
+        {
+            var star = enemies.get();
+            star.setData('vector', new Phaser.Math.Vector2());
+            if (star){
+               sceneObj.tweens.add({
+                    targets: star,
+                    z: 1,
+                    ease: 'Linear',
+                    duration: Math.floor(Math.random()*16000)+7000,
+                    delay: i * 300
+                });
+            }
+        }//for
+    }// spawn enemies
 
     function placeTurret(pointer) {
-        if(score >= 50){
         var i = Math.floor(pointer.y);
         var j = Math.floor(pointer.x);
+        if(j <= 800){
+         var turretCost = (turrets.countActive() * 20)+50;
+        if(score >= turretCost){
             var turret = turrets.get();
             if (turret)
             {
@@ -239,8 +256,10 @@ var Bullet = new Phaser.Class({
                 turret.setVisible(true);
                 turret.place(i, j);
             }   
-        score = score - 50;
+        score = score - turretCost;
         scoreText.setText('Score: ' + score);
+        turCostText.setText('Turret Cost: ' + (turretCost+20));  
+        }
     }
     }//place turret
 
