@@ -10,7 +10,10 @@ body{
 #gamecontainer{
     width:800px;
     height: 800px;
-    background: url("towerdefense.jpg");
+    background: url("../assets/towerdefense.jpg");
+}
+#gamecontainer h1{
+    margin-bottom: 30%;
 }
 
 .gamelayer{
