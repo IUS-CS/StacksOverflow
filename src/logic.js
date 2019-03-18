@@ -1,5 +1,7 @@
 
-    var config = {
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//configuration information for phaser game object
+var config = {
         type: Phaser.AUTO,
         width: 1600,
         height: 800,
@@ -11,8 +13,10 @@
             create: create,
             update: update
         }
-    };
+};// config
 
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//global variables
     var enemies;
     var path;
     var graphics;
@@ -22,17 +26,14 @@
     var turCostText;
     var gameOver = false;
     var round = 1;
-    
     var game = new Phaser.Game(config);
 
-    function preload ()
-    {
-    this.load.image('background', 'background.png');
-    this.load.image('enemy', 'tempEnemy.png');
-    this.load.image('turret', 'turret.png');
-    this.load.image('bullet', 'bullet.png');
-    }//preload
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+/*Turret Class for handling turret objects
+* Properties: nextTic, x, y, damage, level
+* Methods: initialize, place, fire, update, upgrade
+*/
 var Turret = new Phaser.Class({
  
         Extends: Phaser.GameObjects.Image,
@@ -43,17 +44,28 @@ var Turret = new Phaser.Class({
         {
             Phaser.GameObjects.Image.call(this, scene, 0, 0, 'turret');
             this.nextTic = 0;
+            this.damage = 100;
+            this.level = 1;
+            this.turLevelText;
         },
-        place: function(i, j){
-            this.y = i;
-            this.x = j;
+        place: function(y, x){
+            this.y = y;
+            this.x = x;
+        },
+        upgrade: function(){
+            this.damage += 100;
+            this.level++;
+            this.turLevelText.setText(this.level);
+            score -= 50;
+            scoreText.setText("Score: "+score);
         },
         fire: function() {
             var enemy = getEnemy(this.x, this.y, 800);
             if(enemy) {
                 var angle = Phaser.Math.Angle.Between(this.x, this.y, enemy.x, enemy.y);
-                addBullet(this.x, this.y, angle);
+                addBullet(this.x, this.y, angle, this.damage);
                 this.angle = (angle + Math.PI/2) * Phaser.Math.RAD_TO_DEG;
+                
             }
         },
         update: function (time, delta)
@@ -65,6 +77,10 @@ var Turret = new Phaser.Class({
         }
 }); //turret
 
+/*Enemy Class for handling enemy objects
+*Properties: hp, t
+*Methods: initialize, update
+*/
 var Enemy = new Phaser.Class({
  
         Extends: Phaser.GameObjects.Image,
@@ -74,16 +90,8 @@ var Enemy = new Phaser.Class({
         function Enemy (scene)
         {
             Phaser.GameObjects.Image.call(this, scene, 0, 0, 'enemy');
-            this.hp = (round*10)+100;
+            this.hp = (round*10)+80;
             this.t = 0;
-        },
-        damaged: function(){
-            this.hp = this.hp - 50;
-            if (this.hp <= 0){
-                this.destroy();
-                score += 10;
-                scoreText.setText('Score: ' + score);
-            }
         },
         update: function (time, delta)
         {
@@ -91,7 +99,7 @@ var Enemy = new Phaser.Class({
                 var vec = this.getData('vector');
                 if (t >= 1){
                     this.destroy();
-                    score -= 20;
+                    score -= 10;
                     if(score < 0) gameOver = true;
                     else{
                     scoreText.setText('Score: ' + score);
@@ -109,6 +117,11 @@ var Enemy = new Phaser.Class({
  
 });//enemy
 
+/*Bullet Class for handling bullet objects
+*Properties: dx, dy, lifespan, speed, damage
+*Method: initialize, fire, update
+*/
+
 var Bullet = new Phaser.Class({
  
     Extends: Phaser.GameObjects.Image,
@@ -122,14 +135,15 @@ var Bullet = new Phaser.Class({
         this.dx = 0;
         this.dy = 0;
         this.lifespan = 0;
- 
+        this.damage = 0;
         this.speed = Phaser.Math.GetSpeed(1300, 1);
     },
  
-    fire: function (x, y, angle)
+    fire: function (x, y, angle, damage)
     {
         this.setActive(true);
         this.setVisible(true);
+        this.damage = damage;
         //  Bullets fire from the middle of the screen to the given x/y
         this.setPosition(x, y);
  
@@ -148,12 +162,22 @@ var Bullet = new Phaser.Class({
  
         if (this.lifespan <= 0)
         {
-            this.setActive(false);
-            this.setVisible(false);
+            this.destroy();
         }
     }
  
 });//bullet
+    
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //Preload, Create, Update functions for phaser game object
+    
+    function preload ()
+    {
+    this.load.image('background', 'background.png');
+    this.load.image('enemy', 'tempEnemy.png');
+    this.load.image('turret', 'turret.png');
+    this.load.image('bullet', 'bullet.png');
+    }//preload
     
     function create (){
         this.add.image(400, 400, 'background');
@@ -162,7 +186,7 @@ var Bullet = new Phaser.Class({
         roundText = this.add.text(1100, 66, 'Round: 1', { fontSize: '32px', fill: '#FFF' });
         turCostText = this.add.text(1100, 116, 'Turret Cost: 50', { fontSize: '32px', fill: '#FFF' });
         
-        var xval = Math.floor(Math.random() * 2)*800;
+        var xval = Math.floor(Math.random() * 2)*800; //Either 0 or 800 so path starts on left or right only
         var yval = Math.floor(Math.random() *701);
         
         path = new Phaser.Curves.Path(xval, yval);
@@ -176,7 +200,7 @@ var Bullet = new Phaser.Class({
         //draw starting line
         var drawnLines = [strtLine];
         
-        var max = 5;
+        var max = 5; //Maximum path lines
         
         for (var i = 1; i <= max; i++)
         {
@@ -219,12 +243,16 @@ var Bullet = new Phaser.Class({
         }
         if (enemies.countActive() === 0){
             round++;
+            score += 20;
             roundText.setText('Round: ' + round);
+            scoreText.setText('Score: '+score);
             spawnEnemies(this);
         }
         
     }//update
     
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //Spawns Enemies at start of each round
     function spawnEnemies(sceneObj){
         var enNum = Math.floor(Math.random()*(round))+5;
         for (var i = 0; i < enNum; i++)
@@ -243,34 +271,53 @@ var Bullet = new Phaser.Class({
         }//for
     }// spawn enemies
 
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //place turret where player clicks on screen at the cost of score
     function placeTurret(pointer) {
-        var i = Math.floor(pointer.y);
-        var j = Math.floor(pointer.x);
-        if(j <= 800){
-         var turretCost = (turrets.countActive() * 20)+50;
+        var y = Math.floor(pointer.y);
+        var x = Math.floor(pointer.x);
+        var upgraded = false;
+        if(x <= 800){
+            if(score >= 50){
+                var allTurrets = turrets.getChildren();
+                for(var i = 0; i < allTurrets.length; i++) { 
+                    if (((allTurrets[i].x-24) < x && x < (allTurrets[i].x+24)) && ((allTurrets[i].y-33) < y && y < (allTurrets[i].y+33))){
+                        allTurrets[i].upgrade();
+                        upgraded = true;
+                    }
+                }//check upgrade
+            }
+        if (!upgraded){
+         var turretCost = (turrets.countActive() * 50)+50;
         if(score >= turretCost){
             var turret = turrets.get();
             if (turret)
             {
                 turret.setActive(true);
                 turret.setVisible(true);
-                turret.place(i, j);
+                turret.place(y, x);
+                turret.turLevelText = game.scene.scenes[0].add.text(turret.x, turret.y - 55, '1', { fontSize: '12px', fill: '#000' });
             }   
         score = score - turretCost;
         scoreText.setText('Score: ' + score);
-        turCostText.setText('Turret Cost: ' + (turretCost+20));  
+        turCostText.setText('Turret Cost: ' + (turretCost+50));  
         }
-    }
+    }//not upgraded
+        }//within game map
     }//place turret
 
-    function addBullet(x, y, angle) {
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //Adds a bullet object to get fired
+    function addBullet(x, y, angle, damage) {
         var bullet = bullets.get();
         if (bullet)
         {
-            bullet.fire(x, y, angle);
+            bullet.fire(x, y, angle, damage);
         }
     }//create bullet
 
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //Gets closest enemy to turret
     function getEnemy(x, y, distance) {
         var enemyUnits = enemies.getChildren();
         for(var i = 0; i < enemyUnits.length; i++) {       
@@ -280,16 +327,24 @@ var Bullet = new Phaser.Class({
         return false;
     }//get the closest enemy
 
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //bullet hits enemy and enemy takes damage and possibly dies
     function damageEnemy(enemy, bullet) {  
         // only if both enemy and bullet are alive
         if (enemy.active === true && bullet.active === true) {
-            // we remove the bullet right away
-            bullet.setActive(false);
-            bullet.setVisible(false); 
-            enemy.damaged();
+            //remove the bullet right away
+            enemy.hp = enemy.hp - bullet.damage;
+            if (enemy.hp <= 0){
+                enemy.destroy();
+                score += 2;
+                scoreText.setText('Score: ' + score);
+            }
+            bullet.destroy();
         }
     }//damage enemy
     
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //returns true/false if path line to be drawn intersects with already drawn lines
     function checkValidLine(drawnLines){
         var j = drawnLines.length-2;
         var valid = true;
@@ -315,6 +370,8 @@ var Bullet = new Phaser.Class({
         return valid;
     }//draw valid line
     
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //selects an end point to finish the path based on which quadrant the last drawn line ended up
     function selectEndPoint(endLine){
             if(endLine.x1 < 400 && endLine.y1 <400){ //quadrant one
           if(endLine.x1 < endLine.y1){
@@ -353,4 +410,6 @@ var Bullet = new Phaser.Class({
         }
         }//q4
     }//draw the ending point
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
