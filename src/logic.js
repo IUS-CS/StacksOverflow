@@ -54,9 +54,9 @@ var Turret = new Phaser.Class({
         },
         upgrade: function(){
             this.damage += 100;
+            score -= this.level*(50);
             this.level++;
             this.turLevelText.setText(this.level);
-            score -= 50;
             scoreText.setText("Score: "+score);
         },
         fire: function() {
