@@ -53,11 +53,13 @@ var Turret = new Phaser.Class({
             this.x = x;
         },
         upgrade: function(){
+            
             this.damage += 100;
-            score -= this.level*(50);
+            score -= (50);
             this.level++;
             this.turLevelText.setText(this.level);
             scoreText.setText("Score: "+score);
+            
         },
         fire: function() {
             var enemy = getEnemy(this.x, this.y, 800);
