@@ -213,7 +213,7 @@ var Bullet = new Phaser.Class({
         drawnLines[i].x2 = Math.floor(Math.random() *700);
         drawnLines[i].y2 = Math.floor(Math.random() *700); 
         }
-        while(checkValidLine(drawnLines) == false);
+        while(checkValidLine(drawnLines) === false);
         path.lineTo(drawnLines[i].x2, drawnLines[i].y2);
         }//for
         
@@ -345,15 +345,14 @@ var Bullet = new Phaser.Class({
     
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     //returns true/false if path line to be drawn intersects with already drawn lines
-    function checkValidLine(drawnLines){
+   function checkValidLine(drawnLines){
         var j = drawnLines.length-2;
-        var valid = true;
         var denominator;
         var lineToDraw = drawnLines.length -1;
         var t1;
         var t2;
         
-        while (valid && j >= 0){
+        while (j >= 0){
         //x1 y1, x2 y2 are line already drawn
         //x3 y3, x4 y4 are line to be drawn
         
@@ -362,12 +361,13 @@ var Bullet = new Phaser.Class({
         t2 = (((drawnLines[j].y1-drawnLines[j].y2)*(drawnLines[j].x1-drawnLines[lineToDraw].x1))+((drawnLines[j].x2-drawnLines[j].x1)*(drawnLines[j].y1-drawnLines[lineToDraw].y1)))/denominator;
         
         if (0<t1 && t1<1 && 0<t2 && t2<1){
-        valid =false;
+        return false;
+        console.log(drawnLines[lineToDraw].x1 + "," +drawnLines[lineToDraw].y1 + "," +drawnLines[lineToDraw].x2 + "," +drawnLines[lineToDraw].y2);
+        console.log(drawnLines[j].x1 + "," + drawnLines[j].y1 + "," + drawnLines[j].x2 + "," + drawnLines[j].y2);
         }
         j--;
         }//while
-        
-        return valid;
+        return true;
     }//draw valid line
     
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -412,4 +412,6 @@ var Bullet = new Phaser.Class({
     }//draw the ending point
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 

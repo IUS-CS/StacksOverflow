@@ -1,0 +1,19 @@
+{
+  "name": "StacksOverflow",
+  "version": "1.0.0",
+  "description": "Tower Defense",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.16.4",
+    "jasmine": "^3.3.1",
+    "phaser": "^3.15.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test-init": "node ./node_modules/jasmine/bin/jasmine.js init",
+    "test": "node ./node_modules/jasmine/bin/jasmine.js",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "MIT"
+}
