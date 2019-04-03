@@ -364,8 +364,6 @@ var Bullet = new Phaser.Class({
         
         if (0<t1 && t1<1 && 0<t2 && t2<1){
         return false;
-        console.log(drawnLines[lineToDraw].x1 + "," +drawnLines[lineToDraw].y1 + "," +drawnLines[lineToDraw].x2 + "," +drawnLines[lineToDraw].y2);
-        console.log(drawnLines[j].x1 + "," + drawnLines[j].y1 + "," + drawnLines[j].x2 + "," + drawnLines[j].y2);
         }
         j--;
         }//while
