@@ -373,7 +373,7 @@ var Bullet = new Phaser.Class({
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     //selects an end point to finish the path based on which quadrant the last drawn line ended up
     function selectEndPoint(endLine){
-            if(endLine.x1 < 400 && endLine.y1 <400){ //quadrant one
+           if(endLine.x1 < 400 && endLine.y1 <400){ //quadrant one
           if(endLine.x1 < endLine.y1){
           endLine.y2 = endLine.y1;
           }
