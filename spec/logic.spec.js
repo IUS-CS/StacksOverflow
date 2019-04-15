@@ -26,4 +26,22 @@
            //y2 should be 150
            expect(line1.y2).toEqual(150);
         });
+        it("chooses an end point in quadrant 2", function(){
+           var line1 = {x1: 550, y1: 150, x2: 0, y2: 0};
+           selectEndPoint(line1);
+           //x2 should be 550
+           expect(line1.x2).toEqual(550);
+        });
+        it("chooses an end point in quadrant 3", function(){
+           var line1 = {x1: 50, y1: 550, x2: 0, y2: 0};
+           selectEndPoint(line1);
+           //y2 should be 550
+           expect(line1.y2).toEqual(550);
+        });
+        it("chooses an end point in quadrant 4", function(){
+           var line1 = {x1: 750, y1: 550, x2: 0, y2: 0};
+           selectEndPoint(line1);
+           //y2 should be 550
+           expect(line1.y2).toEqual(550);
+        });
     });
