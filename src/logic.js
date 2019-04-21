@@ -245,6 +245,10 @@ var Bullet = new Phaser.Class({
         var t1;
         var t2;
         
+        if(checkSpacing(drawnLines) === false){
+            return false;
+        }
+        
         while (j >= 0){
         //x1 y1, x2 y2 are line already drawn
         //x3 y3, x4 y4 are line to be drawn
@@ -259,7 +263,23 @@ var Bullet = new Phaser.Class({
         j--;
         }//while
         return true;
-    }//draw valid line
+    }//check valid line
+    
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //makes sure lines are spaced out from each other
+    function checkSpacing(drawnLines){
+        var lineToCheck = drawnLines.length-1;
+        for(var i =0; i<drawnLines.length;i++){
+            if (drawnLines[lineToCheck].x2 != drawnLines[i].x2 && Math.abs(drawnLines[lineToCheck].x2 - drawnLines[i].x2) < 35){
+                return false;
+            }
+            else if(drawnLines[lineToCheck].y2 != drawnLines[i].y2 && Math.abs(drawnLines[lineToCheck].y2 - drawnLines[i].y2) < 35){
+                return false;
+            }
+        }//for
+        return true;
+    }//check spacing
+    
     
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     //selects an end point to finish the path based on which quadrant the last drawn line ended up

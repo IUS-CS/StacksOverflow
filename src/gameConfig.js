@@ -69,12 +69,20 @@ var config = {
         drawnLines.push(line);
         
         do{
-        drawnLines[i].x2 = Math.floor(Math.random() *700);
-        drawnLines[i].y2 = Math.floor(Math.random() *700); 
+            if(i%2 == 0){
+                drawnLines[i].x2 = Math.floor(Math.random() *700);
+                drawnLines[i].y2 = drawnLines[i].y1;
+            }
+            else{
+               drawnLines[i].y2 = Math.floor(Math.random() *700); 
+               drawnLines[i].x2 = drawnLines[i].x1;
+            }
         }
         while(checkValidLine(drawnLines) === false);
         path.lineTo(drawnLines[i].x2, drawnLines[i].y2);
+        console.log(drawnLines[i]);
         }//for
+        
         
         //set end point
         var endLine = {x1: drawnLines[max].x2, y1: drawnLines[max].y2, x2:0, y2:0};
