@@ -8,5 +8,7 @@ app.get('/', function(request, response){
 
 app.use(express.static('assets'));
 app.use(express.static('src'));
+app.use(express.static('node_modules'));
+app.use(express.static('spec'));
 
 app.listen('8080');
